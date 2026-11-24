@@ -1,0 +1,46 @@
+services:
+  ticket-service:
+    build:
+      context: ../
+      dockerfile: ./build/Dockerfile
+      target: prod
+    environment:
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: pg_user
+      PG_PASSWORD: pg_pass
+    profiles:
+      - app
+
+  migrate:
+    build:
+      context: ../
+      dockerfile: ./build/Dockerfile
+      target: migrate
+    depends_on:
+      postgres: 
+        condition: service_healthy
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: postgres://postgres_user:postgres_pass@postgres:5432/tickets?sslmode=disable
+      GOOSE_MIGRATION_DIR: /migrations
+    command: ["down"]
+
+  
+  postgres:
+    image: postgres:19.0-alpine
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_pass
+      POSTGRES_DB: tickets
+    volumes:
+      - pg-data:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      retries: 15
+
+volumes:
+  pg-data:
