@@ -50,6 +50,7 @@ erDiagram
 | История событий мест (резерв, продажа, возврат, снятие с резерва) | `booking_history` |
 | Возврат | `refund` |
 | Outbox | `outbox` |
+| Refresh-токен (№73) | `refresh_token` |
 
 ## Диаграмма
 
@@ -62,6 +63,8 @@ erDiagram
     %% account_role.account_id, account_role.role_id
     account ||--|{ account_role : "имеет"
     role ||--o{ account_role : "выдана"
+    %% refresh_token.account_id
+    account ||--o{ refresh_token : "входит через"
 
     %% hall_seat.hall_id
     hall ||--|{ hall_seat : "состоит из"
