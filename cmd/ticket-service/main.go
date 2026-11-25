@@ -12,6 +12,7 @@ import (
 	"github.com/Drusiand/ticket-service/internal/config"
 	"github.com/Drusiand/ticket-service/internal/httpserver"
 	"github.com/Drusiand/ticket-service/internal/logger"
+	"github.com/Drusiand/ticket-service/internal/postgres"
 )
 
 func main() {
@@ -38,9 +39,17 @@ func run() int {
 	log = log.With("service", "ticket-service")
 	slog.SetDefault(log)
 
+	log.Info("connecting to postgres")
+	pool, err := postgres.NewPool(ctx, cfg.PostgresURL, cfg.PostgresPingTimeout)
+	if err != nil {
+		log.Error("failed to connect to Postgres", slog.Any("error", err))
+		return 1
+	}
+	defer pool.Close()
+	log.Info("connected to postgres")
+
 	log.Info("starting HTTP server", slog.Int("port", cfg.AppHTTPPort))
 	server := httpserver.New(cfg, log.With("package", "httpserver"))
-
 	errCh := make(chan error, 1)
 	go func() {
 		err := server.Run()
@@ -48,6 +57,7 @@ func run() int {
 			errCh <- err
 		}
 	}()
+	log.Info("HTTP server is up")
 
 	select {
 	case err := <-errCh:

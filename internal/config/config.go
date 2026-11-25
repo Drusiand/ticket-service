@@ -17,11 +17,8 @@ type Config struct {
 	AppLogLevel   slog.Level `env:"APP_LOG_LEVEL" envDefault:"debug"`
 	AppLogHandler string     `env:"APP_LOG_HANDLER" envDefault:"text"`
 
-	PostgresHost string `env:"POSTGRES_HOST" envDefault:"postgres"`
-	PostgresPort int    `env:"POSTGRES_PORT" envDefault:"5432"`
-	PostgresUser string `env:"POSTGRES_USER" envDefault:"postgres_user"`
-	PostgresPass string `env:"POSTGRES_PASSWORD" envDefault:"postgres_pass"`
-	PostgresDB   string `env:"POSTGRES_DB" envDefault:"tickets"`
+	PostgresURL         string        `env:"POSTGRES_URL,required"`
+	PostgresPingTimeout time.Duration `env:"POSTGRES_PING_TIMEOUT" envDefault:"10s"`
 }
 
 func New() (*Config, error) {

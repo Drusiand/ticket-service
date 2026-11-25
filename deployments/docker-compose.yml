@@ -9,11 +9,7 @@ services:
     ports:
       - 8080:80
     environment:
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: postgres_user
-      POSTGRES_PASSWORD: postgres_pass
-      POSTGRES_DB: tickets
+      POSTGRES_URL: "postgres://postgres_user:postgres_pass@postgres:5432/tickets?sslmode=disable"
     depends_on:
       migrate:
         condition: service_completed_successfully
