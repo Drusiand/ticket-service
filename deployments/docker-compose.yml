@@ -1,16 +1,22 @@
+
 services:
   ticket-service:
     build:
       context: ../
       dockerfile: ./build/Dockerfile
       target: prod
+    container_name: ticket-service
+    ports:
+      - 8080:80
     environment:
-      PG_HOST: postgres
-      PG_PORT: 5432
-      PG_USER: pg_user
-      PG_PASSWORD: pg_pass
-    profiles:
-      - app
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_pass
+      POSTGRES_DB: tickets
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
   migrate:
     build:
@@ -24,7 +30,7 @@ services:
       GOOSE_DRIVER: postgres
       GOOSE_DBSTRING: postgres://postgres_user:postgres_pass@postgres:5432/tickets?sslmode=disable
       GOOSE_MIGRATION_DIR: /migrations
-    command: ["down"]
+    command: ["up"]
 
   
   postgres:
